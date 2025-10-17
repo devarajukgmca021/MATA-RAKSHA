@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pythonlibs/
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Database
+database/*.db
+*.sqlite3
+
+# Biometric templates
+assets/biometric_templates/*
+!assets/biometric_templates/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

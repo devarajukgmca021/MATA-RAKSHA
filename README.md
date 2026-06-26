@@ -230,3 +230,199 @@ The planned AI capabilities include:
 > **Note:** These AI modules are implemented within the project but are currently under development and have not yet been integrated into the primary election workflow.
 
 ---
+
+# 🏗️ System Architecture
+
+The MATA RAKSHA system follows a modular architecture that combines biometric authentication, blockchain technology, and secure election management into a unified desktop application.
+
+<p align="center">
+    <img src="docs/architecture.png" width="900">
+</p>
+
+## Architecture Overview
+
+The system consists of three operational roles:
+
+### 👨‍💼 Administrator
+
+The Administrator is responsible for configuring and managing the complete election lifecycle.
+
+Responsibilities include:
+
+- Create elections
+- Assign Registrars
+- Assign Election Officers
+- Add candidates
+- Manage election lifecycle
+- Publish results
+
+---
+
+### 📝 Registrar
+
+The Registrar is responsible for voter enrollment.
+
+Responsibilities include:
+
+- Register voters
+- Capture fingerprints
+- Generate fingerprint templates
+- Encrypt biometric information
+- Generate voter IDs
+- Export reports
+
+---
+
+### 🛡️ Election Officer
+
+The Election Officer is responsible for secure voting.
+
+Responsibilities include:
+
+- Verify voter identity
+- Authenticate fingerprints
+- Allow secure vote casting
+- Monitor election status
+- View live turnout
+
+---
+
+### 🔐 Biometric Authentication Module
+
+The biometric module performs secure voter authentication using the **SecuGen Hamster Pro 20 (HU20-AP)** fingerprint scanner.
+
+Functions include:
+
+- Fingerprint capture
+- Template generation
+- Secure template storage
+- Template matching
+- Authentication before voting
+
+---
+
+### ⛓️ Blockchain Layer
+
+Every successfully verified vote is recorded as an Ethereum blockchain transaction.
+
+The blockchain layer provides:
+
+- Immutable vote storage
+- Smart contract execution
+- Transparent vote counting
+- Tamper-proof records
+
+---
+
+### 💾 Secure Database
+
+The SQLite database securely stores:
+
+- Election information
+- Candidate information
+- Registrar details
+- Election Officer details
+- Voter details
+- Encrypted fingerprint templates
+
+---
+
+### 📊 Result Computation
+
+After voting concludes, blockchain transactions are processed to generate transparent election results.
+
+The result module provides:
+
+- Vote counting
+- Candidate-wise results
+- Election statistics
+- Final election reports
+
+---
+
+# 🔄 System Workflow
+
+The complete election workflow is illustrated below.
+
+<p align="center">
+    <img src="docs/workflow.png" width="700">
+</p>
+
+## Workflow Explanation
+
+### Step 1 – Election Setup
+
+The Administrator creates a new election, defines its duration, registers candidates, and assigns Registrars and Election Officers for each district.
+
+---
+
+### Step 2 – Voter Registration
+
+The Registrar registers eligible voters by entering personal details and capturing fingerprints using the SecuGen biometric scanner.
+
+The captured fingerprint is converted into an encrypted biometric template and securely stored in the database.
+
+---
+
+### Step 3 – Voter Verification
+
+During voting, the Election Officer initiates voter verification.
+
+The voter's fingerprint is captured and matched against the stored biometric template.
+
+Only authenticated voters proceed to the next step.
+
+---
+
+### Step 4 – AI Risk Assessment *(Under Development)*
+
+The project includes AI modules designed to enhance election security.
+
+Planned capabilities include:
+
+- Fingerprint Quality Assessment
+- Election Anomaly Detection
+- Voting Pattern Analysis
+- Voter Turnout Prediction
+
+These modules are currently under development and will be integrated into future versions.
+
+---
+
+### Step 5 – Secure Vote Casting
+
+After successful authentication, the voter is presented with the candidate list and securely casts a vote.
+
+The Election Officer cannot alter or influence the voting process.
+
+---
+
+### Step 6 – Blockchain Recording
+
+Each vote is submitted to an Ethereum smart contract.
+
+The blockchain guarantees:
+
+- Immutable vote records
+- Tamper-proof transactions
+- Transparent verification
+
+---
+
+### Step 7 – Election Finalization
+
+Once the election ends, the Administrator finalizes the election.
+
+The blockchain records are used to calculate the final result.
+
+---
+
+### Step 8 – Result Generation
+
+The system computes:
+
+- Candidate-wise vote count
+- District-wise results
+- Overall election statistics
+- Live turnout percentage
+- Blockchain-verified final result

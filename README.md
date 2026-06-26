@@ -426,3 +426,276 @@ The system computes:
 - Overall election statistics
 - Live turnout percentage
 - Blockchain-verified final result
+
+---
+
+# 🖥️ Application Modules
+
+The MATA RAKSHA application follows a role-based architecture consisting of three operational modules: **Administrator**, **Registrar**, and **Election Officer**. Each module performs a dedicated responsibility in the election lifecycle, ensuring secure and transparent election management.
+
+---
+
+# 🔐 Login Module
+
+The Login Module serves as the secure entry point of the application. Users authenticate themselves by selecting their role and entering valid credentials before accessing their respective dashboard.
+
+<p align="center">
+<img src="docs/screenshots/login.png" width="850">
+</p>
+
+### Features
+
+- Role-Based Login
+- Secure Authentication
+- Dark Mode Support
+- Administrator Login
+- Registrar Login
+- Election Officer Login
+
+---
+
+# 👨‍💼 Administrator Dashboard
+
+The Administrator controls the complete election lifecycle through five dedicated management modules.
+
+---
+
+## 1️⃣ Registrar Management
+
+The Administrator can create, update, and remove Registrars assigned to different districts.
+
+<p align="center">
+<img src="docs/screenshots/admin_registrar.png" width="900">
+</p>
+
+### Functionalities
+
+- Add Registrar
+- Update Registrar
+- Delete Registrar
+- District Assignment
+- Secure Credential Management
+
+---
+
+## 2️⃣ Election Officer Management
+
+Election Officers responsible for conducting elections are managed from this module.
+
+<p align="center">
+<img src="docs/screenshots/admin_officer.png" width="900">
+</p>
+
+### Functionalities
+
+- Create Officer
+- Update Officer
+- Delete Officer
+- District-wise Assignment
+
+---
+
+## 3️⃣ Election Creation
+
+The Administrator creates elections by specifying the election name, start date, and end date.
+
+The system automatically creates district-wise elections for all Karnataka districts.
+
+<p align="center">
+<img src="docs/screenshots/admin_election.png" width="900">
+</p>
+
+### Functionalities
+
+- Create Election
+- Start & End Date Configuration
+- Karnataka District Generation
+- View Existing Elections
+- Election Status Monitoring
+
+---
+
+## 4️⃣ Candidate Management
+
+Candidates participating in elections are managed through this module.
+
+<p align="center">
+<img src="docs/screenshots/admin_candidates.png" width="900">
+</p>
+
+### Functionalities
+
+- Add Candidate
+- Update Candidate
+- Delete Candidate
+- Political Party Selection
+- Election Symbol Selection
+- District-wise Candidate Management
+
+---
+
+## 5️⃣ Election Lifecycle Management
+
+This module monitors the complete progress of an election from initiation to completion.
+
+<p align="center">
+<img src="docs/screenshots/admin_lifecycle.png" width="900">
+</p>
+
+### Functionalities
+
+- Live Voting Progress
+- Blockchain Connection Status
+- Election Finalization
+- View Election Results
+- Turnout Monitoring
+
+---
+
+# 📝 Registrar Dashboard
+
+The Registrar is responsible for voter enrollment and biometric registration.
+
+---
+
+## 1️⃣ Register Voter
+
+Eligible voters are registered by entering their demographic information and capturing fingerprints using the SecuGen biometric scanner.
+
+<p align="center">
+<img src="docs/screenshots/registrar_register.png" width="900">
+</p>
+
+### Functionalities
+
+- Aadhaar Entry
+- Personal Information Registration
+- Fingerprint Capture
+- Fingerprint Quality Test
+- Biometric Template Generation
+- Secure Voter Registration
+- Digital Voter ID Generation
+
+---
+
+## 2️⃣ Manage Voters
+
+Existing voter records can be searched, updated, verified, or removed.
+
+<p align="center">
+<img src="docs/screenshots/registrar_manage.png" width="900">
+</p>
+
+### Functionalities
+
+- Search by Aadhaar
+- Load Stored Fingerprint
+- Verify Fingerprint
+- Update Details
+- Delete Records
+
+---
+
+## 3️⃣ Reports & Downloads
+
+Administrative reports and voter identification cards are generated from this module.
+
+<p align="center">
+<img src="docs/screenshots/registrar_reports.png" width="900">
+</p>
+
+### Functionalities
+
+- District-wise PDF Export
+- PNG Voter ID Card Generation
+- Report Download
+
+---
+
+# 🛡️ Election Officer Dashboard
+
+The Election Officer conducts secure voter verification and vote casting.
+
+---
+
+## 1️⃣ Voter Verification & Secure Voting
+
+The officer verifies voter identity before opening the secure voting interface.
+
+<p align="center">
+<img src="docs/screenshots/officer_verify.png" width="900">
+</p>
+
+### Functionalities
+
+- Aadhaar Verification
+- Fingerprint Authentication
+- Secure Voting Window
+- Candidate Selection
+- Blockchain Vote Casting
+- QR Code Generation
+
+---
+
+## 2️⃣ Live Results & Election Status
+
+The Election Officer monitors the current election status and turnout while maintaining blockchain connectivity.
+
+<p align="center">
+<img src="docs/screenshots/officer_results.png" width="900">
+</p>
+
+### Functionalities
+
+- Live Election Status
+- Turnout Percentage
+- Blockchain Connection Status
+- Election Progress Monitoring
+
+---
+
+# 🔄 End-to-End Election Process
+
+The application follows the workflow below:
+
+```text
+Administrator
+      │
+      ▼
+Create Election
+      │
+      ▼
+Assign Registrar & Election Officer
+      │
+      ▼
+Registrar Registers Voters
+      │
+      ▼
+Capture Fingerprint
+      │
+      ▼
+Generate Fingerprint Template
+      │
+      ▼
+Store Encrypted Template
+      │
+      ▼
+Election Officer Verification
+      │
+      ▼
+Authenticate Fingerprint
+      │
+      ▼
+Secure Vote Casting
+      │
+      ▼
+Ethereum Smart Contract
+      │
+      ▼
+Blockchain Transaction
+      │
+      ▼
+Election Result Generation
+```
+
+---

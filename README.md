@@ -13,114 +13,220 @@
 
 </p>
 
-A secure desktop-based voting system that combines **biometric fingerprint authentication** with **Ethereum blockchain technology** to provide transparent, tamper-proof, and role-based digital elections.
+A secure desktop-based voting system that integrates **biometric fingerprint authentication** with **Ethereum blockchain technology** to provide secure, transparent, and tamper-proof digital elections.
 
-The project is designed to improve election integrity by preventing impersonation, duplicate voting, and unauthorized access while ensuring every vote is permanently recorded on the blockchain.
+The system enables election administrators to manage the complete election lifecycle—from voter registration and biometric verification to secure vote casting and blockchain-based result generation. It also includes AI analytics modules for election intelligence, which are currently under development for future integration.
 
 ---
 
 # 📖 Project Overview
 
-Traditional voting systems face several challenges, including voter impersonation, manual verification, centralized data storage, and limited transparency.
+Traditional voting systems often suffer from centralized data storage, voter impersonation, duplicate voting, and limited transparency.
 
-**MATA RAKSHA** addresses these issues by integrating biometric authentication with blockchain technology into a secure desktop application.
+**MATA RAKSHA** addresses these challenges by combining **fingerprint-based biometric authentication**, **role-based election management**, and **Ethereum blockchain technology** into a secure desktop application.
 
-The system verifies voters using fingerprint authentication through the **SecuGen Hamster Pro 20 (HU20-AP)** biometric scanner. Once a voter is successfully verified, the vote is securely recorded as an immutable blockchain transaction using Ethereum smart contracts.
+The system authenticates every voter using the **SecuGen Hamster Pro 20 (HU20-AP)** biometric fingerprint scanner before allowing vote casting. Once authenticated, votes are securely recorded as immutable blockchain transactions using Ethereum smart contracts, ensuring election integrity and transparency.
 
-The application follows a role-based architecture consisting of:
+The application follows a **role-based architecture** consisting of three operational modules:
 
-* Administrator
-* Registrar
-* Election Officer
+- 👨‍💼 Administrator
+- 📝 Registrar
+- 🛡️ Election Officer
 
-Each role is responsible for a specific stage of the election process, ensuring secure and controlled access throughout the system.
+Each module performs a dedicated responsibility throughout the election lifecycle, from election creation and voter registration to biometric verification, blockchain vote storage, and result computation.
+
+---
+
+# 🎯 Election Workflow
+
+The election process follows a structured workflow to ensure secure voter authentication and transparent election management.
+
+```text
+Administrator
+        │
+        ▼
+Create Election
+        │
+        ▼
+Assign Registrar & Election Officer
+        │
+        ▼
+Registrar Registers Voters
+        │
+        ▼
+Capture Fingerprint (SecuGen HU20-AP)
+        │
+        ▼
+Generate Encrypted Biometric Template
+        │
+        ▼
+Store Secure Voter Information
+        │
+        ▼
+Election Officer Verification
+        │
+        ▼
+Fingerprint Authentication
+        │
+        ▼
+Secure Vote Casting
+        │
+        ▼
+Ethereum Blockchain Transaction
+        │
+        ▼
+Immutable Vote Storage
+        │
+        ▼
+Election Result Generation
+```
 
 ---
 
 # ✨ Key Features
 
-### 🔐 Secure Authentication
+## 🔐 Secure Authentication
 
-* Fingerprint-based voter enrollment
-* Fingerprint verification before vote casting
-* Role-Based Access Control (RBAC)
-* Secure credential management
-
----
-
-### ⛓️ Blockchain Security
-
-* Ethereum Smart Contracts
-* Immutable vote storage
-* Tamper-resistant voting records
-* Transparent vote counting
-* Blockchain transaction verification
+- Role-Based Access Control (RBAC)
+- Secure Login Authentication
+- Fingerprint-Based Voter Verification
+- Duplicate Vote Prevention
+- Encrypted Biometric Template Storage
+- Aadhaar-Based Voter Identification
 
 ---
 
-### 🗳️ Election Management
+## 👨‍💼 Administrator Module
 
-* Create elections
-* Manage candidates
-* District-wise election support
-* Election lifecycle management
-* Real-time election status
+The Administrator manages the complete election lifecycle.
 
----
+Features include:
 
-### 👥 Voter Management
-
-* Register voters
-* Capture biometric fingerprints
-* Secure biometric data storage
-* Prevent duplicate registrations
-* Maintain voter history
+- Registrar Management
+- Election Officer Management
+- Election Creation
+- District-wise Election Configuration
+- Candidate Management
+- Election Lifecycle Monitoring
+- Result Publication
 
 ---
 
-### 📊 Reporting & Results
+## 📝 Registrar Module
 
-* Automatic vote counting
-* Blockchain-based result verification
-* Audit logs
-* Vote history
-* Election reports
+The Registrar is responsible for biometric voter enrollment.
+
+Features include:
+
+- Register New Voters
+- Aadhaar Verification
+- Fingerprint Capture using SecuGen HU20-AP
+- Fingerprint Quality Testing
+- Secure Biometric Template Storage
+- Digital Voter ID Generation
+- Update/Delete Voter Records
+- District-wise PDF Export
+- PNG Voter ID Card Generation
+
+---
+
+## 🛡️ Election Officer Module
+
+The Election Officer manages secure voter verification and vote casting.
+
+Features include:
+
+- Verify Registered Voters
+- Fingerprint Authentication
+- Secure Voting Window
+- Candidate Selection
+- Blockchain Vote Submission
+- Live Election Status
+- Blockchain Connectivity Monitoring
+- Turnout Progress Tracking
+
+---
+
+## ⛓️ Blockchain Security
+
+The voting system uses Ethereum blockchain technology to guarantee vote integrity.
+
+Features include:
+
+- Ethereum Smart Contracts
+- Immutable Vote Storage
+- Tamper-Proof Voting Records
+- Transparent Vote Counting
+- Blockchain Transaction Verification
+- Secure Result Computation
+
+---
+
+## 📊 Election Analytics
+
+The application provides comprehensive election monitoring.
+
+Features include:
+
+- Real-Time Voting Progress
+- District-wise Election Status
+- Live Turnout Percentage
+- Election Lifecycle Management
+- Result Generation
+- Audit Logs
+- Vote History
 
 ---
 
 # 🛠️ Technology Stack
 
-| Category                           | Technologies                     |
-| ---------------------------------- | -------------------------------- |
-| Programming Language               | Python 3                         |
-| Desktop GUI                        | CustomTkinter                    |
-| Database                           | SQLite                           |
-| Blockchain                         | Ethereum                         |
-| Smart Contracts                    | Solidity                         |
-| Blockchain Framework               | Ganache                          |
-| Blockchain Integration             | Web3.py                          |
-| Biometric Device                   | SecuGen Hamster Pro 20 (HU20-AP) |
-| Security                           | Cryptographic Hashing            |
-| AI Libraries *(under development)* | NumPy, OpenCV, Scikit-learn      |
-| Development Environment            | Visual Studio Code               |
+| Category | Technology |
+|-----------|------------|
+| Programming Language | Python 3 |
+| Desktop GUI | CustomTkinter |
+| Database | SQLite |
+| Blockchain | Ethereum |
+| Smart Contracts | Solidity |
+| Blockchain Network | Ganache |
+| Blockchain Integration | Web3.py |
+| Biometric Device | SecuGen Hamster Pro 20 (HU20-AP) |
+| Fingerprint SDK | SecuGen FDx SDK |
+| Security | Cryptographic Hashing |
+| AI Libraries *(Under Development)* | OpenCV, NumPy, Scikit-learn |
+| Development Environment | Visual Studio Code |
 
 ---
 
 # 🚀 Project Highlights
 
-* ✔️ Fingerprint-Based Authentication
-* ✔️ Blockchain-Powered Vote Storage
-* ✔️ Role-Based Access Control
-* ✔️ Secure Vote Casting
-* ✔️ District-Wise Election Management
-* ✔️ Smart Contract Integration
-* ✔️ Audit Logging
-* ✔️ Transparent Result Generation
-* ✔️ Desktop-Based Application
-* ✔️ Modular Python Architecture
+- ✅ Role-Based Election Management
+- ✅ Fingerprint Biometric Authentication
+- ✅ Ethereum Blockchain Integration
+- ✅ Secure Smart Contract Voting
+- ✅ District-Wise Election Support
+- ✅ Election Lifecycle Management
+- ✅ Candidate Management
+- ✅ Secure Voter Registration
+- ✅ Digital Voter ID Generation
+- ✅ Live Voting Progress
+- ✅ Blockchain Result Verification
+- ✅ Audit Logs & Vote History
+- ✅ Modular Desktop Architecture
 
 ---
 
-> **Note**
->
-> AI modules such as **Fingerprint Quality Assessment**, **Voter Turnout Prediction**, and **Election Anomaly Detection** have been developed and are available in the project. Integration into the main voting workflow is planned as part of future enhancements.
+# 🧠 AI Enhancement (Under Development)
+
+To further strengthen election security and analytics, AI modules have been developed and are planned for future integration into the voting workflow.
+
+The planned AI capabilities include:
+
+- 🔍 Fingerprint Quality Assessment
+- 📈 Voter Turnout Prediction
+- 🚨 Election Anomaly Detection using Isolation Forest
+- 📊 Voting Pattern Analysis
+- ⚠️ Suspicious Activity Detection
+
+> **Note:** These AI modules are implemented within the project but are currently under development and have not yet been integrated into the primary election workflow.
+
+---

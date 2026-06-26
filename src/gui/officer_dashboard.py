@@ -1,4 +1,4 @@
-import tkinter as tk
+"""import tkinter as tk
 from tkinter import ttk, messagebox
 from src.utils.database import Database
 from src.utils.biometric import BiometricSimulator
@@ -265,4 +265,417 @@ class OfficerDashboard:
             self.candidate_var.set(0)
             
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to submit vote: {str(e)}")
+            messagebox.showerror("Error", f"Failed to submit vote: {str(e)}")"""
+
+import io, os, hashlib
+import customtkinter as ctk
+from tkinter import messagebox, ttk
+from PIL import Image, ImageTk
+
+# Optional QR (show message if not installed)
+try:
+    import qrcode
+    QR_AVAILABLE = True
+except Exception:
+    QR_AVAILABLE = False
+
+from src.utils.database import Database
+from src.utils.blockchain import BlockchainManager
+# Adjust import if your biometric module lives elsewhere:
+
+from src.utils.biometric_secugen import SecuGenScanner
+import base64
+class OfficerDashboard(ctk.CTkFrame):
+    """
+    Officer dashboard:
+    - Tab 1: Voter Verification & Secure Voting (CTkToplevel)
+    - Tab 2: Live Results with turnout progress + refresh + chain status
+    """
+    def __init__(self, root, username_or_role, on_logout):
+        super().__init__(root)
+        self.root = root
+        self.on_logout = on_logout
+
+        self.db = Database()
+        self.bc = BlockchainManager()
+        self.sg = SecuGenScanner()
+
+        # Resolve district from role or username
+        self.officer_district = self.db.get_officer_district_from_role(username_or_role) or "Unknown"
+
+        # Theme/window
+        ctk.set_appearance_mode("light")
+        ctk.set_default_color_theme("blue")
+        self.root.title(f"Mata Raksha — Officer ({self.officer_district})")
+        self.root.geometry("980x640")
+
+        # Top bar
+        top = ctk.CTkFrame(self.root, fg_color="#1a252f", height=50)
+        top.pack(fill="x", side="top")
+        ctk.CTkLabel(top, text=f"🛡️ Officer — {self.officer_district}",
+                     font=("Arial", 18, "bold"), text_color="#ecf0f1").pack(side="left", padx=20, pady=10)
+
+        # Chain status dot
+        self.chain_dot = ctk.CTkLabel(top, text="●", font=("Arial", 18))
+        self.chain_dot.pack(side="right", padx=(4, 12))
+        self.chain_label = ctk.CTkLabel(top, text="Chain: checking...", text_color="#bdc3c7")
+        self.chain_label.pack(side="right")
+
+        # Logout
+        ctk.CTkButton(top, text="Logout", fg_color="#e74c3c", hover_color="#c0392b",
+                      width=90, height=30, corner_radius=15,
+                      command=self.logout).pack(side="right", padx=12)
+
+        # Tabs
+        self.tabview = ctk.CTkTabview(self.root)
+        self.tabview.pack(fill="both", expand=True, padx=16, pady=16)
+        self.tab_voting = self.tabview.add("Voting & Verification")
+        self.tab_results = self.tabview.add("Results / Status")
+
+        # Build tabs
+        self._build_voting_tab()
+        self._build_results_tab()
+
+        # Timers
+        self._tick_chain_status()
+        self._auto_refresh_results()
+
+    # ===================== TAB 1: Voting & Verification ======================
+
+    def _build_voting_tab(self):
+        frame = ctk.CTkFrame(self.tab_voting)
+        frame.pack(fill="both", expand=True, padx=16, pady=16)
+
+        ctk.CTkLabel(frame, text="Voter Verification & Secure Voting",
+                     font=("Arial", 17, "bold")).pack(pady=(8,12))
+        district = self.officer_district
+        print(district)
+        if isinstance(district, list):
+            district = district[0] if district else None
+            print(district)
+        # Active election (auto for officer's district)
+        self.active_election = self.db.get_active_election_by_district(district)
+        if not self.active_election:
+            ctk.CTkLabel(frame, text="No ACTIVE election for your district.",
+                         text_color="#c0392b", font=("Arial", 14, "bold")).pack()
+            return
+
+        eid, ename, sdate, edate, status = self.active_election
+        ctk.CTkLabel(frame, text=f"Active: {ename}  ({self.officer_district})\n{sdate} → {edate}",
+                     font=("Arial", 12)).pack()
+
+        # Aadhaar / Voter ID
+        pad = ctk.CTkFrame(frame)
+        pad.pack(pady=12)
+        self.voter_key = ctk.CTkEntry(pad, placeholder_text="Enter Aadhaar or Voter ID", width=320)
+        self.voter_key.grid(row=0, column=0, padx=6)
+        ctk.CTkButton(pad, text="Verify Voter", fg_color="#27ae60",
+                      command=self._verify_voter).grid(row=0, column=1, padx=6)
+
+        # Info labels
+        self.info_voter = ctk.CTkLabel(frame, text="", font=("Arial", 12))
+        self.info_voter.pack(pady=(6,2))
+        self.info_status = ctk.CTkLabel(frame, text="", font=("Arial", 13, "bold"))
+        self.info_status.pack()
+
+        # Note
+        ctk.CTkLabel(frame, text="(After verification, a separate secure window opens for the voter to choose a candidate.)",
+                     text_color="#6b6b6b", font=("Arial", 11)).pack(pady=8)
+
+    def _verify_voter(self):
+        key = (self.voter_key.get() or "").strip()
+        if not key:
+            messagebox.showerror("Missing", "Enter Aadhaar or Voter ID.")
+            return
+
+        voter = self.db.get_voter_by_aadhaar_or_id(key)
+        if not voter:
+            messagebox.showerror("Not found", "No voter found for the input.")
+            return
+
+        # shape per helper: (id, voter_id, name, dob, district, aadhaar, fingerprint_hash, addr, pkey, has_voted)
+        _id, voter_id, name, dob, aadhaar, district,  fp_hash, addr, pkey, _, _, = voter
+
+        if district != self.officer_district:
+            messagebox.showerror("District mismatch",
+                                 f"Voter belongs to {district}, but you are assigned to {self.officer_district}.")
+            return
+        eid = self.active_election[0]
+        has_voted= self.bc.has_voted(eid,addr )
+        if has_voted:
+            self.info_voter.configure(text=f"{name} ({voter_id}) — {district}")
+            self.info_status.configure(text="⚠️ Already voted.", text_color="#e67e22")
+            return
+
+        # Fingerprint capture
+        try:
+            
+            err, self.img_bytes = self.sg.capture_fingerprint()
+
+            err, self.template = self.sg.create_template(self.img_bytes)
+
+            tpl_stored=base64.b64decode(fp_hash)
+            
+        except Exception as e:
+            messagebox.showerror("Fingerprint Error", str(e))
+            return
+
+        if not self.template:
+            return
+        matched = self.sg.match_templates(self.template, tpl_stored)
+        self.info_voter.configure(text=f"{name} ({voter_id}) — {district}")
+
+        if not matched :
+            self.info_status.configure(text="❌ Verification Failed — fingerprint mismatch.", text_color="#e74c3c")
+            return
+
+        self.info_status.configure(text="✅ Verified. Opening secure voting window...", text_color="#27ae60")
+        self._open_secure_voting_window(voter)
+
+    def _open_secure_voting_window(self, voter_row):
+        """
+        Separate, voter-only selection screen.
+        """
+        eid = self.active_election[0]
+        candidates = self.db.get_candidates_for_election_district(eid, self.officer_district)
+
+        if not candidates:
+            messagebox.showerror("No candidates", "No candidates configured for this election.")
+            return
+
+        win = ctk.CTkToplevel(self.root)
+        win.title("Secure Voting")
+        win.geometry("460x560")
+        win.grab_set()  # lock focus here
+
+        ctk.CTkLabel(win, text="Cast Your Vote", font=("Arial", 16, "bold")).pack(pady=(16,8))
+        ctk.CTkLabel(win, text=f"{self.active_election[1]} — {self.officer_district}",
+                     font=("Arial", 12)).pack()
+
+        # Candidate combo
+        # Header Frame
+        header_frame = ctk.CTkFrame(win)
+        header_frame.pack(pady=(10, 5), fill="x")
+
+        ctk.CTkLabel(header_frame, text="Name", width=200, anchor="w").pack(side="left", padx=(10, 5))
+        ctk.CTkLabel(header_frame, text="Party", width=150, anchor="w").pack(side="left", padx=5)
+        ctk.CTkLabel(header_frame, text="Symbol", width=100, anchor="w").pack(side="left", padx=5)
+
+        # Variable to store selected candidate
+        self.selected_candidate = ctk.StringVar(value="")
+        eid = self.active_election[0]
+        print(self.bc.get_candidate_count(eid))
+        # Candidate Rows with Radio Buttons
+        c_id=0
+        for c in candidates:
+            c_id+=1
+            # c[1] = name, c[2] = party, c[3] = symbol
+            row = ctk.CTkFrame(win)
+            row.pack(pady=3, fill="x")
+
+            radio = ctk.CTkRadioButton(
+                row,
+                text="",                   # no text here
+                variable=self.selected_candidate,
+                value=str(c_id)            # candidate_id
+            )
+            radio.pack(side="left", padx=5)
+
+            ctk.CTkLabel(row, text=c[1], width=200, anchor="w").pack(side="left", padx=5)
+            ctk.CTkLabel(row, text=c[2], width=150, anchor="w").pack(side="left", padx=5)
+            ctk.CTkLabel(row, text=c[3] or "", width=100, anchor="w").pack(side="left", padx=5)
+
+
+        
+        """nice = [f"{c[1]} — {c[2]} ({c[3] or ''})" for c in candidates]
+        self.sec_combo = ctk.CTkComboBox(win, values=nice, width=360)
+        self.sec_combo.pack(pady=(18,8))"""
+
+        # Cast button
+        ctk.CTkButton(win, text="Cast Vote", fg_color="#27ae60",
+                      command=lambda: self._cast_vote(voter_row, candidates, win)).pack(pady=10)
+
+        # QR preview
+        self.qr_label = ctk.CTkLabel(win, text="")
+        self.qr_label.pack(pady=8)
+
+        # Info
+        self.sec_status = ctk.CTkLabel(win, text="", font=("Arial", 12))
+        self.sec_status.pack(pady=(6,12))
+
+        # Download QR
+        self.save_qr_btn = ctk.CTkButton(win, text="Download QR", state="disabled",
+                                         command=lambda: self._save_qr_png(win))
+        self.save_qr_btn.pack()
+
+    def _cast_vote(self, voter_row, candidates, win):
+        if not self.bc.is_connected():
+            messagebox.showerror("Blockchain", "Not connected to Ganache/chain.")
+            return
+        sel = int(self.selected_candidate.get())
+        print(sel)
+        if not sel:
+            messagebox.showerror("Select", "Select a candidate.")
+            return
+
+        # voter tuple (id, voter_id, name, dob, district, aadhaar, fp_hash, addr, pkey, has_voted)
+        _id, voter_id, name, dob, aadhaar, district,  fp_hash, addr, pkey, _, _, = voter_row
+        eid = self.active_election[0]
+
+        try:
+            tx_hash = self.bc.cast_vote(eid, sel, pkey)  # must return a hex string
+        except Exception as e:
+            messagebox.showerror("Blockchain Error", f"Failed to cast: {e}")
+            return
+
+        try:
+            self.db.record_vote(voter_id, eid, sel, tx_hash)
+        except Exception as e:
+            messagebox.showwarning("DB Warning", f"Vote recorded on chain, but DB insert had an issue:\n{e}")
+
+        self.sec_status.configure(text=f"✅ Vote cast! Tx: {tx_hash[:16]}...", text_color="#27ae60")
+
+        # QR
+        if not QR_AVAILABLE:
+            self.qr_label.configure(text="(Install 'qrcode[pil]' to show QR)")
+            return
+
+        img = qrcode.make(f"MR-VOTE|e:{eid}|v:{voter_id}|tx:{tx_hash}")
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        pil_img = Image.open(buf)
+        pil_img = pil_img.resize((210, 210))
+        tk_img = ImageTk.PhotoImage(pil_img)
+        self.qr_label.configure(image=tk_img, text="")
+        self.qr_label.image = tk_img
+        win._qr_png_bytes = buf.getvalue()
+        self.save_qr_btn.configure(state="normal")
+
+    def _save_qr_png(self, win):
+        from tkinter import filedialog
+        path = filedialog.asksaveasfilename(
+            title="Save Vote QR",
+            defaultextension=".png",
+            filetypes=[("PNG Image", "*.png")]
+        )
+        if not path:
+            return
+        if hasattr(win, "_qr_png_bytes"):
+            with open(path, "wb") as f:
+                f.write(win._qr_png_bytes)
+            messagebox.showinfo("Saved", f"QR saved to {path}")
+
+    # ===================== TAB 2: Results / Status ======================
+
+    def _build_results_tab(self):
+        frame = ctk.CTkFrame(self.tab_results)
+        frame.pack(fill="both", expand=True, padx=16, pady=16)
+
+        ctk.CTkLabel(frame, text="Live Status",
+                     font=("Arial", 17, "bold")).pack(pady=(8,12))
+
+        # Election selector (active/pending/completed in your district)
+        self.res_election_combo = ctk.CTkComboBox(frame, width=360,
+                                                  values=self._list_elections_in_district())
+        self.res_election_combo.pack(pady=(6,8))
+        ctk.CTkButton(frame, text="Refresh", command=self._refresh_results).pack(pady=6)
+
+        # Chain status inline
+        self.res_chain = ctk.CTkLabel(frame, text="")
+        self.res_chain.pack()
+
+        # Turnout bar
+        bar_frame = ctk.CTkFrame(frame)
+        bar_frame.pack(pady=(10,6), fill="x", padx=8)
+        self.turnout_lbl = ctk.CTkLabel(bar_frame, text="Turnout: 0% (0 / 0)")
+        self.turnout_lbl.pack(anchor="w", padx=8, pady=(6,2))
+        self.turnout_bar = ctk.CTkProgressBar(bar_frame)
+        self.turnout_bar.set(0.0)
+        self.turnout_bar.pack(fill="x", padx=8, pady=(2,8))
+
+        """# Results table
+        self.res_table = ttk.Treeview(frame, columns=("Candidate", "Party", "Symbol", "Votes"),
+                                      show="headings", height=10)
+        for i, col in enumerate(("Candidate", "Party", "Symbol", "Votes")):
+            self.res_table.heading(col, text=col)
+            self.res_table.column(col, anchor="center", width=180 if i < 3 else 100)
+        self.res_table.pack(fill="both", expand=True, pady=(8,6), padx=8)"""
+
+        self._refresh_results()
+
+    def _list_elections_in_district(self):
+        rows = self.db.get_elections()
+        vals = []
+        for e in rows:
+            # e: (id, election_name, district, start, end, contract_address, status, created_at)
+            if e[2] == self.officer_district:
+                vals.append(f"{e[1]} (ID:{e[0]}) [{e[6]}]")
+        return vals or ["<No elections>"]
+
+    def _selected_election_id(self):
+        txt = (self.res_election_combo.get() or "")
+        if "ID:" in txt:
+            try:
+                return int(txt.split("ID:")[1].split(")")[0])
+            except Exception:
+                return None
+        return None
+
+    def _refresh_results(self):
+        eid = self._selected_election_id()
+        if not eid:
+            # pick active if possible
+            if self.active_election:
+                eid = self.active_election[0]
+            else:
+                return
+
+        # Turnout
+        total = self.db.count_voters_in_district(self.officer_district)
+        voted = self.db.count_voted_in_election_district(eid, self.officer_district)
+        pct = (voted / total) if total else 0.0
+        self.turnout_lbl.configure(text=f"Turnout: {pct*100:.1f}%  ({voted} / {total})")
+        self.turnout_bar.set(min(max(pct, 0.0), 1.0))
+
+        # Chain ping
+        if self.bc.is_connected():
+            self.res_chain.configure(text="Chain: Connected", text_color="#27ae60")
+        else:
+            self.res_chain.configure(text="Chain: Disconnected", text_color="#e74c3c")
+
+        # Table
+        """for i in self.res_table.get_children():
+            self.res_table.delete(i)
+
+        rows = self.db.results_summary_by_election(eid)
+        # rows: [(name, party, symbol, votes)]
+        top_votes = rows[0][3] if rows else 0
+        for r in rows:
+            iid = self.res_table.insert("", "end", values=r)
+            if r[3] == top_votes and top_votes > 0:
+                # bold/green for winner
+                self.res_table.item(iid, tags=("winner",))
+        self.res_table.tag_configure("winner", background="#e8f8f5")"""
+
+    # ===================== Timers / Status ======================
+
+    def _tick_chain_status(self):
+        if self.bc.is_connected():
+            self.chain_dot.configure(text_color="#27ae60")
+            self.chain_label.configure(text="Chain: Connected", text_color="#27ae60")
+        else:
+            self.chain_dot.configure(text_color="#e74c3c")
+            self.chain_label.configure(text="Chain: Disconnected", text_color="#e74c3c")
+        self.root.after(2000*60*100, self._tick_chain_status)
+
+    def _auto_refresh_results(self):
+        # refresh silently if results tab selected
+        if self.tabview.get() == "Results / Status":
+            self._refresh_results()
+        self.root.after(1000*60, self._auto_refresh_results)
+
+    def logout(self):
+        self.destroy()
+        self.on_logout()
+

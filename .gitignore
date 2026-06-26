@@ -32,3 +32,40 @@ assets/biometric_templates/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environments
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# Database
+*.db
+database/*.db
+
+# Generated folders
+exports/
+temp_cards/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# Blockchain runtime files
+contract_address.txt
+# Local configuration
+.local/
+.sgfplib_config.ini

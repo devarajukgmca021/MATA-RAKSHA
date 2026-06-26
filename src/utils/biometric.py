@@ -1,4 +1,4 @@
-import hashlib
+"""import hashlib
 import random
 from PIL import Image, ImageDraw
 import os
@@ -41,4 +41,67 @@ class BiometricSimulator:
     
     def get_fingerprint_hash_from_name(self, name):
         unique_string = f"{name}_{random.randint(1000, 9999)}"
-        return hashlib.sha256(unique_string.encode()).hexdigest()
+        return hashlib.sha256(unique_string.encode()).hexdigest()"""
+
+# src/utils/biometric_simulated.py
+import os
+import hashlib
+from PIL import Image
+
+class SimulatedFingerprint:
+    """
+    Uses PNG files as artificial fingerprints.
+    Provides:
+        - capture_fingerprint()  -> bytes
+        - get_quality(bytes)     -> score (0-100)
+        - template_hash(bytes)   -> SHA256 hex
+    """
+
+    def capture_fingerprint(self):
+        """
+        Opens a file dialog so user selects a PNG/JPG fingerprint image.
+        Returns image bytes. No hardware used.
+        """
+        from tkinter import filedialog
+        path = filedialog.askopenfilename(
+            title="Choose fingerprint image",
+            filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp")]
+        )
+        if not path:
+            return None
+
+        with open(path, "rb") as f:
+            return f.read()
+
+    def get_quality(self, fp_bytes):
+        """
+        Very basic 'quality test':
+        - Loads image
+        - Counts edges / contrast level
+        Returns 0–100
+        """
+        try:
+            import numpy as np
+            from PIL import ImageFilter
+
+            img = Image.open(io.BytesIO(fp_bytes)).convert("L")
+            edges = img.filter(ImageFilter.FIND_EDGES)
+            arr = np.array(edges)
+
+            score = int(arr.mean())  # edge strength
+
+            # Clamp to 0–100 range
+            if score < 10: return 10
+            if score > 100: return 100
+            return score
+
+        except Exception:
+            # Fallback: accept if image > 2KB
+            return 50 if len(fp_bytes) > 2000 else 10
+
+    def template_hash(self, fp_bytes):
+        """
+        Hashes the raw fingerprint image bytes.
+        """
+        return hashlib.sha256(fp_bytes).hexdigest()
+

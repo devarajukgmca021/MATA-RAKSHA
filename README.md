@@ -699,3 +699,269 @@ Election Result Generation
 ```
 
 ---
+---
+
+# 📂 Project Structure
+
+The project follows a modular architecture to improve maintainability, scalability, and code organization.
+
+```text
+MATA-RAKSHA
+│
+├── assets/                     # Project assets
+│   └── contracts/
+│       └── VotingContract.sol
+│
+├── database/                   # SQLite database
+│
+├── docs/
+│   ├── architecture.png
+│   ├── workflow.png
+│   └── screenshots/
+│
+├── src/
+│   ├── ai/                     # AI modules (Under Development)
+│   │   ├── ai_anomaly.py
+│   │   ├── ai_fingerprint.py
+│   │   └── ai_turnout.py
+│   │
+│   ├── gui/
+│   │   ├── login_window.py
+│   │   ├── admin_dashboard.py
+│   │   ├── registrar_dashboard.py
+│   │   └── officer_dashboard.py
+│   │
+│   └── utils/
+│       ├── biometric.py
+│       ├── biometric_secugen.py
+│       ├── blockchain.py
+│       ├── database.py
+│       ├── ctk_datepicker.py
+│       └── dll/
+│
+├── main.py
+├── contract_abi.json
+├── requirements.txt
+├── README.md
+└── LICENSE
+```
+
+---
+
+# ⚙️ Installation
+
+## Prerequisites
+
+Before running the application, install the following software.
+
+### Python
+
+- Python 3.10 or later
+
+### Blockchain
+
+- Ganache (Local Ethereum Blockchain)
+
+### Fingerprint Scanner
+
+- SecuGen Hamster Pro 20 (HU20-AP)
+
+### Development Tools
+
+- Visual Studio Code
+- Git
+
+---
+
+# 📦 Install Required Packages
+
+Clone the repository.
+
+```bash
+git clone https://github.com/devarajukgmca021/MATA-RAKSHA.git
+```
+
+Open the project.
+
+```bash
+cd MATA-RAKSHA
+```
+
+Install dependencies.
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# ▶️ Running the Application
+
+## Step 1
+
+Start Ganache.
+
+Ensure Ganache is running on:
+
+```
+http://127.0.0.1:8545
+```
+
+---
+
+## Step 2
+
+Connect the SecuGen fingerprint scanner.
+
+---
+
+## Step 3
+
+Run the application.
+
+```bash
+python main.py
+```
+
+---
+
+# 🔒 Security Features
+
+The system incorporates multiple layers of security to ensure election integrity.
+
+### Authentication
+
+- Role-Based Access Control
+- Secure Login Authentication
+- Administrator Authorization
+
+---
+
+### Biometric Security
+
+- Fingerprint Enrollment
+- Fingerprint Verification
+- Encrypted Fingerprint Template Storage
+- Secure Template Matching
+
+---
+
+### Blockchain Security
+
+- Ethereum Smart Contracts
+- Immutable Vote Storage
+- Tamper-Proof Records
+- Blockchain Transaction Verification
+
+---
+
+### Election Security
+
+- Duplicate Vote Prevention
+- District-wise Election Validation
+- Secure Vote Casting
+- Transparent Result Generation
+
+---
+
+### Database Security
+
+- SQLite Storage
+- Cryptographic Hashing
+- Secure Data Management
+
+---
+
+# 📊 Current Project Status
+
+| Module | Status |
+|---------|:------:|
+| Login System | ✅ Completed |
+| Administrator Module | ✅ Completed |
+| Registrar Module | ✅ Completed |
+| Election Officer Module | ✅ Completed |
+| Fingerprint Authentication | ✅ Completed |
+| Blockchain Integration | ✅ Completed |
+| Smart Contract Voting | ✅ Completed |
+| Election Lifecycle | ✅ Completed |
+| Reports & Downloads | ✅ Completed |
+| AI Analytics | 🚧 Under Development |
+
+---
+
+# 🚀 Future Enhancements
+
+The following features are planned for future releases.
+
+## Artificial Intelligence
+
+- Fingerprint Quality Assessment
+- Election Anomaly Detection
+- Voter Turnout Prediction
+- Suspicious Voting Pattern Analysis
+
+---
+
+## Security
+
+- Zero Knowledge Proof (ZKP)
+- Multi-Factor Authentication
+- Advanced Cryptographic Verification
+
+---
+
+## Blockchain
+
+- Ethereum Testnet Deployment
+- Public Blockchain Support
+- Decentralized Identity (DID)
+
+---
+
+## Platform
+
+- Web Application
+- Android Application
+- Cloud Deployment
+- Online Remote Voting
+
+---
+
+# 👨‍💻 Author
+
+**Devaraju K G**
+
+Master of Computer Applications (MCA)
+
+RNS Institute of Technology
+
+Bengaluru, Karnataka, India
+
+GitHub:
+https://github.com/devarajukgmca021
+
+---
+
+# 🙏 Acknowledgements
+
+The author sincerely thanks the faculty members of the Department of Master of Computer Applications, RNS Institute of Technology, for their continuous guidance and encouragement throughout the development of this project.
+
+Special thanks to Dr. Nagesh B S for providing valuable technical guidance and project supervision.
+
+---
+
+# 📜 License
+
+This project is licensed under the **MIT License**.
+
+See the **LICENSE** file for complete details.
+
+---
+
+# ⭐ Support
+
+If you found this project useful, consider giving it a ⭐ on GitHub.
+
+Your support encourages further improvements and future enhancements.
+
+---
